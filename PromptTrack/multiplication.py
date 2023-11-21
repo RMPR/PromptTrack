@@ -9,4 +9,4 @@ class Multiplication:
     def multiply(self, number):
         
         # Using NumPy .dot() to multiply the numbers
-        return np.dot(number, self.multiplier)
+        return 2*np.dot(number, self.multiplier)
