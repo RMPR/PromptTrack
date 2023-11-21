@@ -15,4 +15,4 @@ multiplication = Multiplication(2)
 result = multiplication.multiply(5)
 
 
-pypi token: pypi-AgEIcHlwaS5vcmcCJDIwZTliYjc3LTRjNWYtNGUyMC05YzJlLTYwOTMxMzNjMTYwOAACKlszLCI0YmExYTA4NS05Y2I3LTQzMDQtOTViNS00NGQ5NjJjYTFhZTYiXQAABiBlV_bjHB8ZWzlypTXtCCuTn2QP7Z-Fo1BdKdh5BQ7Mmg
+What helped: https://towardsdatascience.com/deep-dive-create-and-publish-your-first-python-library-f7f618719e14
