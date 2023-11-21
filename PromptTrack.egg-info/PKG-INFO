@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: PromptTrack
-Version: 0.1.0
+Version: 0.1.1
 Summary: Demo library
 Home-page: https://PaquetLab_PromptTrack.readthedocs.io/
 Author: sophie NGO BIBINBE
@@ -33,4 +33,8 @@ multiplication = Multiplication(2)
 
 # Call the multiply method
 result = multiplication.multiply(5)
+
+
+What helped: https://towardsdatascience.com/deep-dive-create-and-publish-your-first-python-library-f7f618719e14
+
 
