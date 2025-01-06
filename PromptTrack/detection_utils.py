@@ -117,8 +117,8 @@ def add_res(results, ax, color='green'):
 
 
 
-def get_inference(im, caption="pigs",nms_threshold=0.8,detector="OWL-VITV2"):
-  im=Image.fromarray(im)
+def get_inference(im_or, caption="pigs",nms_threshold=0.8,detector="OWL-VITV2"):
+  im=Image.fromarray(im_or)
   # mean-std normalize the input image (batch-size: 1)
   img = transform(im).unsqueeze(0)
   if torch.cuda.is_available():
@@ -133,14 +133,48 @@ def get_inference(im, caption="pigs",nms_threshold=0.8,detector="OWL-VITV2"):
     model.eval();
     memory_cache = model(img, [caption], encode_and_save=True)
     outputs = model(img, [caption], encode_and_save=False, memory_cache=memory_cache)
+      # keep only predictions with 0.7+ confidence
+    probas = 1 - outputs['pred_logits'].softmax(-1)[0, :, -1].cpu()
+    keep = (probas > 0.9).cpu()
+    
+    bboxes_scaled1 = rescale_bboxes(outputs['pred_boxes'].cpu()[0, :], im.size)
+    areas = np.array([(box[2]-box[0] )* (box[3]-box[1]) for box in bboxes_scaled1])
+    
+    #filtrage sur l'aire 
+    """area_filtered = (8000< areas) & ( areas<90000)
+    keep = keep &  area_filtered
+    """
+    ############NMS
+    bboxes_scaled_tlw= [[int(box[0]),int(box[1]), int(box[2]-box[0]), int(box[3]-box[1]) ]   for box in bboxes_scaled1]
+    best_keep_nms = nms.boxes(bboxes_scaled_tlw, probas, nms_algorithm=fast.nms, nms_threshold=nms_threshold)
+    best_keep_nms = np.array( [ True if (idx in best_keep_nms) else False for idx, i in enumerate(keep) ] )
+    
+    keep =keep & best_keep_nms
+    #print("***",keep, best_keep_nms)
+    
+
+    # convert boxes from [0; 1] to image scales
+    bboxes_scaled = rescale_bboxes(outputs['pred_boxes'].cpu()[0, keep], im.size)
+    
+    # Extract the text spans predicted by each box
+    positive_tokens = (outputs["pred_logits"].cpu()[0, keep].softmax(-1) > 0.1).nonzero().tolist()
+    predicted_spans = defaultdict(str)
+    for tok in positive_tokens:
+      item, pos = tok
+      if pos < 255:
+          span = memory_cache["tokenized"].token_to_chars(0, pos)
+          predicted_spans [item] += " " + caption[span.start:span.end]
+
+    labels = [predicted_spans [k] for k in sorted(list(predicted_spans .keys()))]
+    
   if detector.lower()=="OWL-VITV2":
     
     processor = Owlv2Processor.from_pretrained("google/owlv2-base-patch16-ensemble")
     model = Owlv2ForObjectDetection.from_pretrained("google/owlv2-base-patch16-ensemble")
 
-    url = "http://images.cocodataset.org/val2017/000000039769.jpg"
-    image = Image.open(requests.get(url, stream=True).raw)
-    texts = [["a photo of a cat", "a photo of a dog"]]
+    #url = "http://images.cocodataset.org/val2017/000000039769.jpg"
+    image = im=Image.fromarray(im_or)#Image.open(requests.get(url, stream=True).raw)
+    texts = [caption.split(",")]
     inputs = processor(text=texts, images=image, return_tensors="pt")
     outputs = model(**inputs)
 
@@ -155,42 +189,14 @@ def get_inference(im, caption="pigs",nms_threshold=0.8,detector="OWL-VITV2"):
         box = [round(i, 2) for i in box.tolist()]
         print(f"Detected {text[label]} with confidence {round(score.item(), 3)} at location {box}")
         
+    probas=scores
+    bboxes_scaled=boxes
+    keep  = (probas > 0.5).cpu()
+        
   else:
     raise ValueError("Value unaccept,value accepted are only: mdetr and OWL-VITV2")
     
-  # keep only predictions with 0.7+ confidence
-  probas = 1 - outputs['pred_logits'].softmax(-1)[0, :, -1].cpu()
-  keep = (probas > 0.9).cpu()
-  
-  bboxes_scaled1 = rescale_bboxes(outputs['pred_boxes'].cpu()[0, :], im.size)
-  areas = np.array([(box[2]-box[0] )* (box[3]-box[1]) for box in bboxes_scaled1])
-  
-  #filtrage sur l'aire 
-  """area_filtered = (8000< areas) & ( areas<90000)
-  keep = keep &  area_filtered
-  """
-  ############NMS
-  bboxes_scaled_tlw= [[int(box[0]),int(box[1]), int(box[2]-box[0]), int(box[3]-box[1]) ]   for box in bboxes_scaled1]
-  best_keep_nms = nms.boxes(bboxes_scaled_tlw, probas, nms_algorithm=fast.nms, nms_threshold=nms_threshold)
-  best_keep_nms = np.array( [ True if (idx in best_keep_nms) else False for idx, i in enumerate(keep) ] )
-  
-  keep =keep & best_keep_nms
-  #print("***",keep, best_keep_nms)
-  
 
-  # convert boxes from [0; 1] to image scales
-  bboxes_scaled = rescale_bboxes(outputs['pred_boxes'].cpu()[0, keep], im.size)
-  
-  # Extract the text spans predicted by each box
-  positive_tokens = (outputs["pred_logits"].cpu()[0, keep].softmax(-1) > 0.1).nonzero().tolist()
-  predicted_spans = defaultdict(str)
-  for tok in positive_tokens:
-    item, pos = tok
-    if pos < 255:
-        span = memory_cache["tokenized"].token_to_chars(0, pos)
-        predicted_spans [item] += " " + caption[span.start:span.end]
-
-  labels = [predicted_spans [k] for k in sorted(list(predicted_spans .keys()))]
   detection_bboxes = []
   detection_confidences = []
   detection_class_ids = []
@@ -206,3 +212,29 @@ def get_inference(im, caption="pigs",nms_threshold=0.8,detector="OWL-VITV2"):
   
   return detection_bboxes, detection_confidences,detection_class_ids
   #plot_results(im, probas[keep], bboxes_scaled, labels)
+
+
+
+
+
+'''
+processor = Owlv2Processor.from_pretrained("google/owlv2-base-patch16-ensemble")
+model = Owlv2ForObjectDetection.from_pretrained("google/owlv2-base-patch16-ensemble")
+
+url = "http://images.cocodataset.org/val2017/000000039769.jpg"
+image = Image.open(requests.get(url, stream=True).raw)
+texts = [["a photo of a cat", "a photo of a dog"]]
+inputs = processor(text=texts, images=image, return_tensors="pt")
+outputs = model(**inputs)
+
+# Target image sizes (height, width) to rescale box predictions [batch_size, 2]
+target_sizes = torch.Tensor([image.size[::-1]])
+# Convert outputs (bounding boxes and class logits) to Pascal VOC Format (xmin, ymin, xmax, ymax)
+results = processor.post_process_object_detection(outputs=outputs, target_sizes=target_sizes, threshold=0.1)
+i = 0  # Retrieve predictions for the first image for the corresponding text queries
+text = texts[i]
+boxes, scores, labels = results[i]["boxes"], results[i]["scores"], results[i]["labels"]
+for box, score, label in zip(boxes, scores, labels):
+    box = [round(i, 2) for i in box.tolist()]
+    print(f"Detected {text[label]} with confidence {round(score.item(), 3)} at location {box}")
+print(boxes, scores, labels)'''

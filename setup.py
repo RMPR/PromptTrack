@@ -15,7 +15,7 @@ with open(path.join(HERE, 'README.md'), encoding='utf-8') as f:
 # This call to setup() does all the work
 setup(
     name="PromptTrack",
-    version="0.1.1",
+    version="0.1.18",
     description="Demo library",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -36,5 +36,5 @@ setup(
     ],
     packages=["PromptTrack"],
     include_package_data=True,
-    install_requires=["numpy"]
+    install_requires=["numpy","timm==0.4.5","transformers==4.6", "matplotlib", "scikit-image", "opencv-python", "nms==0.1.6","bytetracker"]
 )
