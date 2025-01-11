@@ -27,6 +27,12 @@ tracker.process_mot (video_file, fixed_parc=False, track_thresh=0.2, match_thres
 tracker.read_video_with_mot(video_file)
 
 
+## Parameters
+Track_thresh: is the detection threshold that the tracker will use to perform its tracking
+match_thresh: 1-threshold on the matching between tracks and new detections,  1 to match all detections to track, and 0 to match no detection with previous tracks
+frame_rate: frame rate of the video
+fixed_parc: set this variable to true if the number of animal in the parc is fixed and does not change all over the video 
+video_file: is the path of the video 
 
 # Result
 It will provide you in the video folder, a video with the track and a json file with track in the format {frame_id:{pig_id:{x:"", y:"",width:"",height:""}}}

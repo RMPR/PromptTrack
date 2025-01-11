@@ -11,12 +11,11 @@ for video_path in os.listdir(videos_path):
     if video_path.split(".")[-1] in ["mp4"] and "with_id" not in video_path:
         video_file=videos_path+"/"+video_path
         tracker.detect_objects(video_file, prompt="zebra",nms_threshold=0.8, detection_threshold=0.35) 
-        tracker.process_mot (video_file, fixed_parc=False, track_buffer=1000000,track_thresh=0.3, match_thresh=0.8, frame_rate=25,max_time_lost=300)
+        tracker.process_mot (video_file, fixed_parc=False,track_thresh=0.3, match_thresh=0.8, frame_rate=25,max_time_lost=300)
         
         #Track_thresh: is the detection threshold that the tracker will use to perform its tracking
         #match_thresh: 1-threshold on the matching between tracks and new detections,  1 to match all detections to track, and 0 to match no detection with previous tracks
-        #frame_rate:
-        #Track_buffer:
+        #frame_rate: frame rate of the video
         #fixed_parc: set this variable to true if the number of animal in the parc is fixed and does not change all over the video 
         #video_file: is the path of the video 
 
