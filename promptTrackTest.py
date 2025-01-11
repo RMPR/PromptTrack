@@ -10,8 +10,16 @@ videos_path="/data/home/sophie/sophie_2024-10-08/aggression_detection/test_video
 for video_path in os.listdir(videos_path):
     if video_path.split(".")[-1] in ["mp4"] and "with_id" not in video_path:
         video_file=videos_path+"/"+video_path
-        tracker.detect_objects(video_file, prompt="zebra",nms_threshold=0.8, detection_threshold=0.35) 
+        tracker.detect_objects(video_file, prompt="zebra",nms_threshold=0.8, detection_threshold=0.3,detector="OWL-VITV2")
+        #video_file: is the path of the video 
+        #prompt: comma separated names of the entities you would like to track example to track birds and pigs  prompt="pig,bird"
+        #nms_threshold: used for applying nms on mdetr
+        #detection_threshold: is the threshold on detection that will be reported 
+        #detector: is the detector you would like to use we provide mdetr and owl-vitv2 that you could use as parameters 
+
         tracker.process_mot (video_file, fixed_parc=False,track_thresh=0.3, match_thresh=0.8, frame_rate=25,max_time_lost=300)
+        
+        
         
         #Track_thresh: is the detection threshold that the tracker will use to perform its tracking
         #match_thresh: 1-threshold on the matching between tracks and new detections,  1 to match all detections to track, and 0 to match no detection with previous tracks
