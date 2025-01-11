@@ -1,5 +1,25 @@
 from PromptTrack import PromptTracker
+import os 
 
 tracker = PromptTracker()
+video_file="/data/home/sophie/sophie_2024-10-08/uncertain-identity-aware-tracking/videos/GR77_20200512_111314.mp4"
+video_file= "/data/home/sophie/sophie_2024-10-08/aggression_detection/test_prompttrack/birds.mp4"
 
-tracker.detect_objects(video_file, prompt="i am interested in penguin",nms_threshold=0.8) 
+
+videos_path="/data/home/sophie/sophie_2024-10-08/aggression_detection/test_videos/animalTrack/videos"
+for video_path in os.listdir(videos_path):
+    video_file=videos_path+"/"+video_path
+    tracker.detect_objects(video_file, prompt="pig",nms_threshold=0.8, detection_threshold=0.35) 
+
+    tracker.process_mot (video_file, fixed_parc=False, track_buffer=1000000,track_thresh=0.3, match_thresh=0.8, frame_rate=25,max_time_lost=300)
+    #Track_thresh: is the detection threshold that the tracker will use to perform its tracking
+    #match_thresh: 1-threshold on the matching between tracks and new detections,  1 to match all detections to track, and 0 to match no detection with previous tracks
+    #frame_rate:
+    #Track_buffer:
+    #fixed_parc: set this variable to true if the number of animal in the parc is fixed and does not change all over the video 
+    #video_file: is the path of the video 
+
+    #Default values fixed_parc=True, nbr_items=15, track_thresh=0, match_thresh=1, frame_rate=6, track_buffer=10000, max_time_lost=20000)
+
+
+    tracker.read_video_with_mot(video_file,fps=20)

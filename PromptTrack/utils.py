@@ -379,15 +379,16 @@ def add_rectangle_on_frame(frame, coordinates, title):
     cv2.putText(frame, title, title_position, title_font, title_font_scale, title_color, rectangle_thickness, cv2.LINE_AA)
     return frame 
 
-def read_video_mot(video_file, annotations):
+def read_video_mot(video_file, annotations,fps=None):
     annotated_video_file = video_file.split(".mp4")[0]+'_with_id.mp4'
     cap = cv2.VideoCapture(video_file)
     # Check if the video file was opened successfully
     frame_width = int(cap.get(3))
     frame_height = int(cap.get(4))
-    fps = int(cap.get(cv2.CAP_PROP_FPS))
+    if fps is None:
+        fps = int(cap.get(cv2.CAP_PROP_FPS))
     fourcc = cv2.VideoWriter_fourcc(*'XVID')  # You can change the codec as needed
-    out = cv2.VideoWriter(annotated_video_file, fourcc, 6, (frame_width, frame_height))
+    out = cv2.VideoWriter(annotated_video_file, fourcc, fps, (frame_width, frame_height))
 
     if not cap.isOpened():
         print("Error: Could not open video file.")
@@ -411,7 +412,7 @@ def read_video_mot(video_file, annotations):
                         behaviour = pig["behaviour"]
                     else:
                         behaviour=""
-                    frame= add_rectangle_on_frame(frame, coordinates, str(pig_id)+" :"+behaviour)
+                    frame= add_rectangle_on_frame(frame, coordinates, str(pig_id)+" :"+str(pig ["confidence"]))#+behaviour)
         
             out.write(frame)
         frame_id+=1

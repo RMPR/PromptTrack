@@ -5,4 +5,12 @@ matplotlib
 scikit-image
 opencv-python
 nms ==0.1.6
+lap==0.4.0 
 bytetracker
+#install lap and then pip install --no-deps bytetracker
+
+torch
+torchvision
+torchaudio
+transformers
+#make sure to install numpy matplotly and lap before bytetrack and this manually 

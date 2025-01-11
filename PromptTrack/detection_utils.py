@@ -117,16 +117,18 @@ def add_res(results, ax, color='green'):
 
 
 
-def get_inference(im_or, caption="pigs",nms_threshold=0.8,detector="OWL-VITV2"):
-  im=Image.fromarray(im_or)
-  # mean-std normalize the input image (batch-size: 1)
-  img = transform(im).unsqueeze(0)
-  if torch.cuda.is_available():
-    img = img.cuda()
+def get_inference(im_or, caption="pigs",nms_threshold=0.8,detector="OWL-VITV2", detection_threshold=0.5):
+  
 
   # propagate through the model
   
   if detector.lower()=="mdetr":
+    im=Image.fromarray(im_or)
+    # mean-std normalize the input image (batch-size: 1)
+    img = transform(im).unsqueeze(0)
+    if torch.cuda.is_available():
+      img = img.cuda()
+      
     model, postprocessor = torch.hub.load('ashkamath/mdetr:main', 'mdetr_efficientnetB5', pretrained=True, return_postprocessor=True, trust_repo=True)
     if torch.cuda.is_available():
       model = model.cuda()
@@ -135,7 +137,7 @@ def get_inference(im_or, caption="pigs",nms_threshold=0.8,detector="OWL-VITV2"):
     outputs = model(img, [caption], encode_and_save=False, memory_cache=memory_cache)
       # keep only predictions with 0.7+ confidence
     probas = 1 - outputs['pred_logits'].softmax(-1)[0, :, -1].cpu()
-    keep = (probas > 0.9).cpu()
+    keep = (probas > detection_threshold).cpu()
     
     bboxes_scaled1 = rescale_bboxes(outputs['pred_boxes'].cpu()[0, :], im.size)
     areas = np.array([(box[2]-box[0] )* (box[3]-box[1]) for box in bboxes_scaled1])
@@ -167,15 +169,23 @@ def get_inference(im_or, caption="pigs",nms_threshold=0.8,detector="OWL-VITV2"):
 
     labels = [predicted_spans [k] for k in sorted(list(predicted_spans .keys()))]
     
-  if detector.lower()=="OWL-VITV2":
+  if detector.lower()=="owl-vitv2":
     
-    processor = Owlv2Processor.from_pretrained("google/owlv2-base-patch16-ensemble")
-    model = Owlv2ForObjectDetection.from_pretrained("google/owlv2-base-patch16-ensemble")
+    processor = Owlv2Processor.from_pretrained("google/owlv2-large-patch14-ensemble")
+    model = Owlv2ForObjectDetection.from_pretrained("google/owlv2-large-patch14-ensemble")
 
-    #url = "http://images.cocodataset.org/val2017/000000039769.jpg"
-    image = im=Image.fromarray(im_or)#Image.open(requests.get(url, stream=True).raw)
+    """url = "http://images.cocodataset.org/val2017/000000039769.jpg"
+    image=Image.open(requests.get(url, stream=True).raw)"""
+    image = im=Image.fromarray(im_or)
+    #image=image.convert('RGB')
+
+    #caption="cat"  
     texts = [caption.split(",")]
     inputs = processor(text=texts, images=image, return_tensors="pt")
+    if torch.cuda.is_available():
+      model = model.cuda()
+      inputs = {key: val.to("cuda") for key, val in inputs.items()}
+
     outputs = model(**inputs)
 
     # Target image sizes (height, width) to rescale box predictions [batch_size, 2]
@@ -190,9 +200,9 @@ def get_inference(im_or, caption="pigs",nms_threshold=0.8,detector="OWL-VITV2"):
         print(f"Detected {text[label]} with confidence {round(score.item(), 3)} at location {box}")
         
     probas=scores
-    bboxes_scaled=boxes
-    keep  = (probas > 0.5).cpu()
-        
+    keep  = (probas > detection_threshold).cpu()
+    bboxes_scaled=boxes[keep]
+
   else:
     raise ValueError("Value unaccept,value accepted are only: mdetr and OWL-VITV2")
     
@@ -202,7 +212,7 @@ def get_inference(im_or, caption="pigs",nms_threshold=0.8,detector="OWL-VITV2"):
   detection_class_ids = []
 
   for idx, detection in enumerate(bboxes_scaled):
-    if  True: #8000<(detection[2]-detection[0])*(detection[3]-detection[1])<40000: # on filtre l'aire des 
+    if True: #detection[3]>100 (constraint for the pig dataset):# True: #8000<(detection[2]-detection[0])*(detection[3]-detection[1])<40000: # on filtre l'aire des 
       detection =detection.tolist()
       detection = [detection[0], detection[1], detection[2]-detection[0], detection[3]-detection[1]]
       #detection = to_elements(detection)
@@ -214,27 +224,3 @@ def get_inference(im_or, caption="pigs",nms_threshold=0.8,detector="OWL-VITV2"):
   #plot_results(im, probas[keep], bboxes_scaled, labels)
 
 
-
-
-
-'''
-processor = Owlv2Processor.from_pretrained("google/owlv2-base-patch16-ensemble")
-model = Owlv2ForObjectDetection.from_pretrained("google/owlv2-base-patch16-ensemble")
-
-url = "http://images.cocodataset.org/val2017/000000039769.jpg"
-image = Image.open(requests.get(url, stream=True).raw)
-texts = [["a photo of a cat", "a photo of a dog"]]
-inputs = processor(text=texts, images=image, return_tensors="pt")
-outputs = model(**inputs)
-
-# Target image sizes (height, width) to rescale box predictions [batch_size, 2]
-target_sizes = torch.Tensor([image.size[::-1]])
-# Convert outputs (bounding boxes and class logits) to Pascal VOC Format (xmin, ymin, xmax, ymax)
-results = processor.post_process_object_detection(outputs=outputs, target_sizes=target_sizes, threshold=0.1)
-i = 0  # Retrieve predictions for the first image for the corresponding text queries
-text = texts[i]
-boxes, scores, labels = results[i]["boxes"], results[i]["scores"], results[i]["labels"]
-for box, score, label in zip(boxes, scores, labels):
-    box = [round(i, 2) for i in box.tolist()]
-    print(f"Detected {text[label]} with confidence {round(score.item(), 3)} at location {box}")
-print(boxes, scores, labels)'''
