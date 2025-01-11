@@ -118,10 +118,7 @@ def add_res(results, ax, color='green'):
 
 
 def get_inference(im_or, caption="pigs",nms_threshold=0.8,detector="OWL-VITV2", detection_threshold=0.5):
-  
-
   # propagate through the model
-  
   if detector.lower()=="mdetr":
     im=Image.fromarray(im_or)
     # mean-std normalize the input image (batch-size: 1)
@@ -152,10 +149,6 @@ def get_inference(im_or, caption="pigs",nms_threshold=0.8,detector="OWL-VITV2", 
     best_keep_nms = np.array( [ True if (idx in best_keep_nms) else False for idx, i in enumerate(keep) ] )
     
     keep =keep & best_keep_nms
-    #print("***",keep, best_keep_nms)
-    
-
-    # convert boxes from [0; 1] to image scales
     bboxes_scaled = rescale_bboxes(outputs['pred_boxes'].cpu()[0, keep], im.size)
     
     # Extract the text spans predicted by each box
@@ -170,24 +163,15 @@ def get_inference(im_or, caption="pigs",nms_threshold=0.8,detector="OWL-VITV2", 
     labels = [predicted_spans [k] for k in sorted(list(predicted_spans .keys()))]
     
   if detector.lower()=="owl-vitv2":
-    
     processor = Owlv2Processor.from_pretrained("google/owlv2-large-patch14-ensemble")
     model = Owlv2ForObjectDetection.from_pretrained("google/owlv2-large-patch14-ensemble")
-
-    """url = "http://images.cocodataset.org/val2017/000000039769.jpg"
-    image=Image.open(requests.get(url, stream=True).raw)"""
     image = im=Image.fromarray(im_or)
-    #image=image.convert('RGB')
-
-    #caption="cat"  
     texts = [caption.split(",")]
     inputs = processor(text=texts, images=image, return_tensors="pt")
     if torch.cuda.is_available():
       model = model.cuda()
       inputs = {key: val.to("cuda") for key, val in inputs.items()}
-
     outputs = model(**inputs)
-
     # Target image sizes (height, width) to rescale box predictions [batch_size, 2]
     target_sizes = torch.Tensor([image.size[::-1]])
     # Convert outputs (bounding boxes and class logits) to Pascal VOC Format (xmin, ymin, xmax, ymax)
@@ -198,7 +182,6 @@ def get_inference(im_or, caption="pigs",nms_threshold=0.8,detector="OWL-VITV2", 
     for box, score, label in zip(boxes, scores, labels):
         box = [round(i, 2) for i in box.tolist()]
         print(f"Detected {text[label]} with confidence {round(score.item(), 3)} at location {box}")
-        
     probas=scores
     keep  = (probas > detection_threshold).cpu()
     bboxes_scaled=boxes[keep]

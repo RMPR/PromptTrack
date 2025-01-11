@@ -110,7 +110,7 @@ class PromptTracker():
         
         
         
-        bytetracker = BYTETracker(track_thresh=self.track_thresh, track_buffer=self.track_buffer, match_thresh=self.match_thresh, frame_rate=frame_rate,max_time_lost=max_time_lost)  # j'oblige le modèle à faire matcher à de id existant ***mais ca ne marche pas *** 
+        bytetracker = BYTETracker(track_thresh=self.track_thresh, fixed_parc=fixed_parc, track_buffer=self.track_buffer, match_thresh=self.match_thresh, frame_rate=frame_rate,max_time_lost=max_time_lost)  # j'oblige le modèle à faire matcher à de id existant ***mais ca ne marche pas *** 
         #bytetracker.max_time_lost = self.max_time_lost
         track_over_time={}
         #tracker = CentroidTracker(max_lost=180) # or IOUTracker(...), CentroidKF_Tracker(...), SORT(...)
