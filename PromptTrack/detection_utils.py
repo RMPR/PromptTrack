@@ -185,6 +185,7 @@ def get_inference(im_or, caption="pigs",nms_threshold=0.8,detector="OWL-VITV2", 
     probas=scores
     keep  = (probas > detection_threshold).cpu()
     bboxes_scaled=boxes[keep]
+    #print(keep)
 
   else:
     raise ValueError("Value unaccept,value accepted are only: mdetr and OWL-VITV2")

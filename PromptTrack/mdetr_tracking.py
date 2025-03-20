@@ -60,20 +60,20 @@ class PromptTracker():
 
 
 
-    def detect_objects(self,  video_file, prompt="pigs",nms_threshold=0.8,detection_threshold=0):
+    def detect_objects(self,  video_file, prompt="pigs",nms_threshold=0.8,detection_threshold=0 ,detector="OWL-VITV2"):
         processed_frames = []
         video_capture = cv2.VideoCapture(video_file)  # Replace with your video file path
         frame_id=0
         while True:
             ret, frame = video_capture.read()
 
-            if not ret :#or frame_id==100:
+            if not ret :#or frame_id==300:
                 break
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            processed_frame = self.process_a_frame (frame, frame_id, prompt,nms_threshold,detection_threshold=detection_threshold) 
+            processed_frame = self.process_a_frame (frame, frame_id, prompt,nms_threshold,detection_threshold=detection_threshold,detector="OWL-VITV2") 
             processed_frames.append(processed_frame)
             frame_id+=1
-            print("detection", frame_id)
+            print("detections on frame id", frame_id)
 
         def key_function(item):
             return list(item.keys())[0]
@@ -89,7 +89,7 @@ class PromptTracker():
             print('dumping the file')
             json.dump(sorted_processed_frames , file)
 
-    def process_mot(self, video_file, fixed_parc=True, nbr_items=15, track_thresh=0, match_thresh=1, frame_rate=25, track_buffer=10000, max_time_lost=100):
+    def process_mot(self, video_file, fixed_parc=True, nbr_items=15, track_thresh=0, match_thresh=1, frame_rate=25, track_buffer=10000, max_time_lost=100,nbr_frames_fixing=10):
         """
         remplacer par Bytetrack qui a été crée avec des librairies existantes
         Args:
@@ -110,14 +110,13 @@ class PromptTracker():
         
         
         
-        bytetracker = BYTETracker(track_thresh=self.track_thresh, fixed_parc=fixed_parc, track_buffer=self.track_buffer, match_thresh=self.match_thresh, frame_rate=frame_rate,max_time_lost=max_time_lost)  # j'oblige le modèle à faire matcher à de id existant ***mais ca ne marche pas *** 
+        bytetracker = BYTETracker(track_thresh=self.track_thresh, fixed_parc=fixed_parc, track_buffer=self.track_buffer, match_thresh=self.match_thresh, frame_rate=frame_rate,max_time_lost=max_time_lost,nbr_frames_fixing=nbr_frames_fixing)  # j'oblige le modèle à faire matcher à de id existant ***mais ca ne marche pas *** 
         #bytetracker.max_time_lost = self.max_time_lost
         track_over_time={}
         #tracker = CentroidTracker(max_lost=180) # or IOUTracker(...), CentroidKF_Tracker(...), SORT(...)
         for detection_dictionnary  in sorted_processed_frames:
             frame_id = int(list(detection_dictionnary.keys())[0])
-            """if frame_id==7000:
-                break"""
+            
             detection_bboxes, detection_confidences, detection_class_ids = list(detection_dictionnary.values())[0][0]
             detection_with_score=[]
             for idx, box in enumerate(detection_bboxes):

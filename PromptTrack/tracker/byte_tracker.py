@@ -149,7 +149,7 @@ class STrack(BaseTrack):
 
 
 class BYTETracker(object):
-    def __init__(self, track_thresh=0.45, fixed_parc=False, track_buffer=25, match_thresh=0.8, frame_rate=30,mot20=True,max_time_lost=100):
+    def __init__(self, track_thresh=0.45, fixed_parc=False, track_buffer=25, match_thresh=0.8, frame_rate=30,mot20=True,max_time_lost=100,nbr_frames_fixing=10):
         self.tracked_stracks = []  # type: list[STrack]
         self.lost_stracks = []  # type: list[STrack]
         self.removed_stracks = []  # type: list[STrack]
@@ -165,7 +165,7 @@ class BYTETracker(object):
         self.frame_rate=frame_rate
         self.mot20=mot20
         self.fixed_parc=fixed_parc
-                
+        self.nbr_frames_fixing= nbr_frames_fixing     ###number of frames for initializing animals    
         #self.args = {"track_thresh":track_thresh,"track_buffer":track_buffer,"match_thresh":match_thresh,"frame_rate":frame_rate,"mot20":False}
         #self.det_thresh = args.track_thresh
         self.det_thresh = track_thresh 
@@ -306,11 +306,10 @@ class BYTETracker(object):
 
         """ Step 4: Init new stracks"""
         if self.fixed_parc ==True:
-            if self.frame_id<10:
+            if self.frame_id<self.nbr_frames_fixing:
                 print("initialisation of new tracks fixed for livestock context")
 
                 for inew in u_detection:
-                    
                     track = detections[inew]
                     if track.score < self.det_thresh:
                         continue
