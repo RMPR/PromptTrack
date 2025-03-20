@@ -8,15 +8,21 @@
 
 To install PromptTracker, use the following command:
 
-```bash
+```python
 pip install prompt-tracker
 pip install --no-deps bytetracker
+
+
+
+
 
 The package has been implemented for python from 3.9 to earlier (last version currently 3.12)
 You can check our [github repo](https://github.com/ngobibibnbe/PromptTrack)
 
 
 ## Usage
+
+```python
 from PromptTrack import PromptTracker
 
 tracker = PromptTracker()
