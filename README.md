@@ -9,7 +9,8 @@
 To install PromptTracker, use the following command:
 
 ```python
-pip install prompt-tracker
+#pip install prompt-tracker (version prod)
+pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ PromptTrack (version test)
 pip install --no-deps bytetracker
 ```
 
