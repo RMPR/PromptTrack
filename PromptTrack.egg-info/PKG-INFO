@@ -1,6 +1,6 @@
 Metadata-Version: 2.2
 Name: PromptTrack
-Version: 0.2.7
+Version: 0.2.9
 Summary: Demo library
 Home-page: https://PaquetLab_PromptTrack.readthedocs.io/
 Author: sophie NGO BIBINBE
@@ -48,7 +48,7 @@ Dynamic: summary
 To install PromptTracker, use the following command:
 
 ```python
-pip install prompt-tracker
+pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ PromptTrack (version test)
 pip install --no-deps bytetracker
 ```
 

@@ -9,7 +9,6 @@
 To install PromptTracker, use the following command:
 
 ```python
-#pip install prompt-tracker (version prod)
 pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ PromptTrack (version test)
 pip install --no-deps bytetracker
 ```
@@ -81,7 +80,7 @@ tracker.read_video_with_mot(video_file,fps=20)
 ```python
 tracker = PromptTracker()
 
-video_file = "[path_to_your_video]
+video_file = "[path_to_your_video]"
 tracker.detect_objects(video_file, prompt="penguin", nms_threshold=0.8, detection_threshold=0.3, detector="OWL-VITV2")
 
 tracker.process_mot(video_file, fixed_parc=True, track_thresh=0.40, match_thresh=1, frame_rate=25, max_time_lost=float('inf'), nbr_frames_fixing=800)
