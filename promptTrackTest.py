@@ -2,16 +2,14 @@ from PromptTrack import PromptTracker
 import os 
 
 tracker = PromptTracker()
-video_file="/data/home/sophie/sophie_2024-10-08/uncertain-identity-aware-tracking/videos/GR77_20200512_111314.mp4"
-video_file= "/data/home/sophie/sophie_2024-10-08/aggression_detection/test_prompttrack/birds.mp4"
+video_file= "test/video_test/test.mp4"
 
-
-videos_path="/data/home/sophie/sophie_2024-10-08/aggression_detection/test_videos/jamie_videos"
-for video_path in os.listdir(videos_path):
-    if video_path.split(".")[-1] in ["mp4"] and "with_id" not in video_path and "d2" in video_path: # and "b3 38" in video_path:
-        video_file=videos_path+"/"+video_path
+for video_path in [video_file]:
+    if video_path.split(".")[-1] in ["mp4"] :
+        video_file= video_path
+        print("we start tracking the video", video_file)
         tracker = PromptTracker()
-        #tracker.detect_objects(video_file, prompt="pig",nms_threshold=0.8, detection_threshold=0.3 ,detector="OWL-VITV2")
+        tracker.detect_objects(video_file, prompt="penguin",nms_threshold=0.8, detection_threshold=0.3 ,detector="OWL-VITV2")
         
         
         #video_file: is the path of the video 

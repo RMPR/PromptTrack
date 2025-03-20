@@ -12,8 +12,10 @@ from skimage.measure import find_contours
 from matplotlib import patches,  lines
 from matplotlib.patches import Polygon
 from nms import nms , malisiewicz, fast
+from transformers import Owlv2Processor, Owlv2ForObjectDetection
 
 torch.set_grad_enabled(False)
+
 
 
 
@@ -110,64 +112,91 @@ def add_res(results, ax, color='green'):
         
         
         
-model, postprocessor = torch.hub.load('ashkamath/mdetr:main', 'mdetr_efficientnetB5', pretrained=True, return_postprocessor=True, trust_repo=True)
-if torch.cuda.is_available():
-  model = model.cuda()
-model.eval();
 
 
 
 
-def get_inference(im, caption="pigs",nms_threshold=0.8):
-  im=Image.fromarray(im)
-  # mean-std normalize the input image (batch-size: 1)
-  img = transform(im).unsqueeze(0)
-  if torch.cuda.is_available():
-    img = img.cuda()
 
+def get_inference(im_or, caption="pigs",nms_threshold=0.8,detector="OWL-VITV2", detection_threshold=0.5):
   # propagate through the model
-  memory_cache = model(img, [caption], encode_and_save=True)
-  outputs = model(img, [caption], encode_and_save=False, memory_cache=memory_cache)
-  
-  # keep only predictions with 0.7+ confidence
-  probas = 1 - outputs['pred_logits'].softmax(-1)[0, :, -1].cpu()
-  keep = (probas > 0.9).cpu()
-  
-  bboxes_scaled1 = rescale_bboxes(outputs['pred_boxes'].cpu()[0, :], im.size)
-  areas = np.array([(box[2]-box[0] )* (box[3]-box[1]) for box in bboxes_scaled1])
-  
-  #filtrage sur l'aire 
-  """area_filtered = (8000< areas) & ( areas<90000)
-  keep = keep &  area_filtered
-  """
-  ############NMS
-  bboxes_scaled_tlw= [[int(box[0]),int(box[1]), int(box[2]-box[0]), int(box[3]-box[1]) ]   for box in bboxes_scaled1]
-  best_keep_nms = nms.boxes(bboxes_scaled_tlw, probas, nms_algorithm=fast.nms, nms_threshold=nms_threshold)
-  best_keep_nms = np.array( [ True if (idx in best_keep_nms) else False for idx, i in enumerate(keep) ] )
-  
-  keep =keep & best_keep_nms
-  #print("***",keep, best_keep_nms)
-  
+  if detector.lower()=="mdetr":
+    im=Image.fromarray(im_or)
+    # mean-std normalize the input image (batch-size: 1)
+    img = transform(im).unsqueeze(0)
+    if torch.cuda.is_available():
+      img = img.cuda()
+      
+    model, postprocessor = torch.hub.load('ashkamath/mdetr:main', 'mdetr_efficientnetB5', pretrained=True, return_postprocessor=True, trust_repo=True)
+    if torch.cuda.is_available():
+      model = model.cuda()
+    model.eval();
+    memory_cache = model(img, [caption], encode_and_save=True)
+    outputs = model(img, [caption], encode_and_save=False, memory_cache=memory_cache)
+      # keep only predictions with 0.7+ confidence
+    probas = 1 - outputs['pred_logits'].softmax(-1)[0, :, -1].cpu()
+    keep = (probas > detection_threshold).cpu()
+    
+    bboxes_scaled1 = rescale_bboxes(outputs['pred_boxes'].cpu()[0, :], im.size)
+    areas = np.array([(box[2]-box[0] )* (box[3]-box[1]) for box in bboxes_scaled1])
+    
+    #filtrage sur l'aire 
+    """area_filtered = (8000< areas) & ( areas<90000)
+    keep = keep &  area_filtered
+    """
+    ############NMS
+    bboxes_scaled_tlw= [[int(box[0]),int(box[1]), int(box[2]-box[0]), int(box[3]-box[1]) ]   for box in bboxes_scaled1]
+    best_keep_nms = nms.boxes(bboxes_scaled_tlw, probas, nms_algorithm=fast.nms, nms_threshold=nms_threshold)
+    best_keep_nms = np.array( [ True if (idx in best_keep_nms) else False for idx, i in enumerate(keep) ] )
+    
+    keep =keep & best_keep_nms
+    bboxes_scaled = rescale_bboxes(outputs['pred_boxes'].cpu()[0, keep], im.size)
+    
+    # Extract the text spans predicted by each box
+    positive_tokens = (outputs["pred_logits"].cpu()[0, keep].softmax(-1) > 0.1).nonzero().tolist()
+    predicted_spans = defaultdict(str)
+    for tok in positive_tokens:
+      item, pos = tok
+      if pos < 255:
+          span = memory_cache["tokenized"].token_to_chars(0, pos)
+          predicted_spans [item] += " " + caption[span.start:span.end]
 
-  # convert boxes from [0; 1] to image scales
-  bboxes_scaled = rescale_bboxes(outputs['pred_boxes'].cpu()[0, keep], im.size)
-  
-  # Extract the text spans predicted by each box
-  positive_tokens = (outputs["pred_logits"].cpu()[0, keep].softmax(-1) > 0.1).nonzero().tolist()
-  predicted_spans = defaultdict(str)
-  for tok in positive_tokens:
-    item, pos = tok
-    if pos < 255:
-        span = memory_cache["tokenized"].token_to_chars(0, pos)
-        predicted_spans [item] += " " + caption[span.start:span.end]
+    labels = [predicted_spans [k] for k in sorted(list(predicted_spans .keys()))]
+    
+  if detector.lower()=="owl-vitv2":
+    processor = Owlv2Processor.from_pretrained("google/owlv2-large-patch14-ensemble")
+    model = Owlv2ForObjectDetection.from_pretrained("google/owlv2-large-patch14-ensemble")
+    image = im=Image.fromarray(im_or)
+    texts = [caption.split(",")]
+    inputs = processor(text=texts, images=image, return_tensors="pt")
+    if torch.cuda.is_available():
+      model = model.cuda()
+      inputs = {key: val.to("cuda") for key, val in inputs.items()}
+    outputs = model(**inputs)
+    # Target image sizes (height, width) to rescale box predictions [batch_size, 2]
+    target_sizes = torch.Tensor([image.size[::-1]])
+    # Convert outputs (bounding boxes and class logits) to Pascal VOC Format (xmin, ymin, xmax, ymax)
+    results = processor.post_process_object_detection(outputs=outputs, target_sizes=target_sizes, threshold=0.1)
+    i = 0  # Retrieve predictions for the first image for the corresponding text queries
+    text = texts[i]
+    boxes, scores, labels = results[i]["boxes"], results[i]["scores"], results[i]["labels"]
+    for box, score, label in zip(boxes, scores, labels):
+        box = [round(i, 2) for i in box.tolist()]
+        print(f"Detected {text[label]} with confidence {round(score.item(), 3)} at location {box}")
+    probas=scores
+    keep  = (probas > detection_threshold).cpu()
+    bboxes_scaled=boxes[keep]
+    #print(keep)
 
-  labels = [predicted_spans [k] for k in sorted(list(predicted_spans .keys()))]
+  else:
+    raise ValueError("Value unaccept,value accepted are only: mdetr and OWL-VITV2")
+    
+
   detection_bboxes = []
   detection_confidences = []
   detection_class_ids = []
 
   for idx, detection in enumerate(bboxes_scaled):
-    if  True: #8000<(detection[2]-detection[0])*(detection[3]-detection[1])<40000: # on filtre l'aire des 
+    if True: #detection[3]>100 (constraint for the pig dataset):# True: #8000<(detection[2]-detection[0])*(detection[3]-detection[1])<40000: # on filtre l'aire des 
       detection =detection.tolist()
       detection = [detection[0], detection[1], detection[2]-detection[0], detection[3]-detection[1]]
       #detection = to_elements(detection)
@@ -177,3 +206,5 @@ def get_inference(im, caption="pigs",nms_threshold=0.8):
   
   return detection_bboxes, detection_confidences,detection_class_ids
   #plot_results(im, probas[keep], bboxes_scaled, labels)
+
+

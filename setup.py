@@ -15,7 +15,7 @@ with open(path.join(HERE, 'README.md'), encoding='utf-8') as f:
 # This call to setup() does all the work
 setup(
     name="PromptTrack",
-    version="0.1.18",
+    version="0.2.6",
     description="Demo library",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -28,13 +28,13 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
         "Operating System :: OS Independent"
     ],
     packages=["PromptTrack"],
     include_package_data=True,
-    install_requires=["numpy","timm==0.4.5","transformers==4.6", "matplotlib", "scikit-image", "opencv-python", "nms==0.1.6","bytetracker"]
+    install_requires=["numpy","timm","transformers", "matplotlib", "lap", "scikit-image", "opencv-python", "nms","torch", "torchvision", "torchaudio"]
 )

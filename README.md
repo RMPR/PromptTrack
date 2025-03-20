@@ -1,20 +1,29 @@
-## PromptTrack 
-A library for tracking based on your prompt 
+# **PromptTrack**
+## 📄 **Overview**
+**PromptTracker** is a powerful object tracking tool that enables the detection and tracking of objects in videos using **text-based  prompts**. It supports advanced object detection models such as **MDETR** and **OWL-VITV2**, providing robust tracking with options to handle **fixed populations** in enclosed environments.
 
-# Installation
-pip install PromptTrack
-The package has been implemented for python 3.9 and later might work on 3.8 and 3.7
+---
+
+## 📥 **Installation**
+
+To install PromptTracker, use the following command:
+
+```bash
+pip install prompt-tracker
+pip install --no-deps bytetracker
+
+The package has been implemented for python from 3.9 to earlier (last version currently 3.12)
 You can check our [github repo](https://github.com/ngobibibnbe/PromptTrack)
 
 
-# Usage
+## Usage
 from PromptTrack import PromptTracker
 
 tracker = PromptTracker()
 
 video_file = "[path_to_your_video](https://www.pexels.com/video/penguins-hopping-down-the-stairs-9116156/)"  #[video example](https://www.pexels.com/video/penguins-hopping-down-the-stairs-9116156/)
 
-tracker.detect_objects(video_file, prompt="i am interested in penguin",nms_threshold=0.8) 
+tracker.detect_objects(video_file, prompt="penguin;pig",nms_threshold=0.8) 
 tracker.process_mot (video_file, fixed_parc=False,track_thresh=0.3, match_thresh=0.8, frame_rate=25,max_time_lost=300)
 tracker.read_video_with_mot(video_file)
 
