@@ -13,9 +13,13 @@ with open(path.join(HERE, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 # This call to setup() does all the work
+
+from setuptools import setup, find_packages
+
+
 setup(
     name="PromptTrack",
-    version="0.2.9",
+    version="0.2.11",
     description="Demo library",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -34,7 +38,7 @@ setup(
         "Programming Language :: Python :: 3.12",
         "Operating System :: OS Independent"
     ],
-    packages=["PromptTrack"],
+    packages=find_packages(include=["PromptTrack", "PromptTrack.*"]), #["PromptTrack"],
     include_package_data=True,
     install_requires=["numpy","timm","transformers", "matplotlib", "lap", "scikit-image", "opencv-python", "nms","torch", "torchvision", "torchaudio"]
 )
