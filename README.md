@@ -86,7 +86,8 @@ tracker.detect_objects(video_file, prompt="penguin", nms_threshold=0.8, detectio
 tracker.process_mot(video_file, fixed_parc=True, track_thresh=0.40, match_thresh=1, frame_rate=25, max_time_lost=float('inf'), nbr_frames_fixing=800)
 
 tracker.read_video_with_mot(video_file, fps=20)
+```
 
-
+## Example 
 
 
