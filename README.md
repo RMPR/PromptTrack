@@ -88,20 +88,17 @@ tracker.process_mot(video_file, fixed_parc=True, track_thresh=0.40, match_thresh
 tracker.read_video_with_mot(video_file, fps=20)
 ```
 
-## Example 
+## Examples 
 
+<p align="center">
+  <img src="images/pig_1.gif" width="45%" />
+  <img src="images/pig_2.gif" width="45%" />
+</p>
 
-### Scenario 1
-![Scenario 1 (prompt=penguin)](images/penguin.gif)
+<p align="center">
+  <img src="images/rabbit.gif" width="29%" />
+  <img src="images/penguin.gif" width="29%" />
+    <img src="images/zebra.gif" width="29%" />
 
-### Scenario 2
-![Scenario 2 (prompt=pig)](images/pig_1.gif)
+</p>
 
-### Scenario 3
-![Scenario 3 (prompt=pig)](images/pig_2.gif)
-
-### Scenario 4
-![Scenario 4 (prompt=rabbit)](images/rabbit.gif)
-
-### Scenario 4
-![Scenario 4 (prompt=rabbit)](images/zebbra.gif)
