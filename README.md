@@ -98,7 +98,7 @@ tracker.read_video_with_mot(video_file, fps=20)
 <p align="center">
   <img src="images/rabbit.gif" width="29%" />
   <img src="images/penguin.gif" width="29%" />
-    <img src="images/zebra.gif" width="29%" />
+    <img src="images/zebbra.gif" width="29%" />
 
 </p>
 
