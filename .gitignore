@@ -1,6 +1,10 @@
 .travis.yml
+.travis
 token.md
-helped.md
+Helped.md
 PromptTrack/__pycache__
 PromptTrack/trash
 trash
+dist
+build
+PromptTrack.egg-info

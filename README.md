@@ -60,7 +60,7 @@ Process the video using a Multiple Object Tracker (MOT):
 
 
 ```python
-tracker.process_mot (video_file, fixed_parc=True,track_thresh=0.40, match_thresh=1, frame_rate=25,max_time_lost=float('inf'),nbr_frames_fixing=800)
+tracker.process_mot (video_file, fixed_parc=True,track_thresh=0.40, match_thresh=0.8, frame_rate=25,max_time_lost=float('inf'),nbr_frames_fixing=800)
 ```
 
 
@@ -91,3 +91,17 @@ tracker.read_video_with_mot(video_file, fps=20)
 ## Example 
 
 
+### Scenario 1
+![Scenario 1 (prompt=penguin)](images/penguin.gif)
+
+### Scenario 2
+![Scenario 2 (prompt=pig)](images/pig_1.gif)
+
+### Scenario 3
+![Scenario 3 (prompt=pig)](images/pig_2.gif)
+
+### Scenario 4
+![Scenario 4 (prompt=rabbit)](images/rabbit.gif)
+
+### Scenario 4
+![Scenario 4 (prompt=rabbit)](images/zebbra.gif)
