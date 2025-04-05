@@ -90,4 +90,14 @@ tracker.read_video_with_mot(video_file, fps=20)
 
 ## Examples (on our github)
 
+<p align="center">
+  <img src="images/pig_1.gif" width="45%" />
+  <img src="images/pig_2.gif" width="45%" />
+</p>
 
+<p align="center">
+  <img src="images/rabbit.gif"  height="200px" width="29%" />
+  <img src="images/penguin.gif"  height="200px" width="29%" />
+    <img src="images/zebbra.gif"  height="200px" width="29%" />
+
+</p>
