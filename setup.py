@@ -19,7 +19,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="PromptTrack",
-    version="0.2.11",
+    version="1.0.2",
     description="Demo library",
     long_description=long_description,
     long_description_content_type="text/markdown",
