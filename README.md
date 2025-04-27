@@ -1,4 +1,10 @@
 # **PromptTrack**
+<p align="center">
+  <a href="https://colab.research.google.com/drive/1AbCdEfGhiJkLmNoPqRstUvWxYZ12345?usp=sharing" target="_blank">
+    <img src="https://img.shields.io/badge/Open%20in%20Colab-FFD43B?style=for-the-badge&logo=googlecolab&logoColor=black" alt="Open In Colab"/>
+  </a>
+</p>
+
 ## 📄 **Overview**
 **PromptTracker** is a powerful object tracking tool that enables the detection and tracking of objects in videos using **text-based  prompts**. It supports advanced object detection models such as **MDETR** and **OWL-VITV2**, providing robust tracking with options to handle **fixed populations** in enclosed environments.
 
