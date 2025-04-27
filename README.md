@@ -79,6 +79,7 @@ tracker.read_video_with_mot(video_file,fps=20)
 ## Full example usage 
 
 ```python
+from PromptTrack import PromptTracker
 tracker = PromptTracker()
 
 video_file = "[path_to_your_video]"
