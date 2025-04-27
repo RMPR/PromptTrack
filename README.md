@@ -1,6 +1,6 @@
 # **PromptTrack**
 <p align="center">
-  <a href="https://colab.research.google.com/drive/1AbCdEfGhiJkLmNoPqRstUvWxYZ12345?usp=sharing" target="_blank">
+  <a href="https://colab.research.google.com/github/ngobibibnbe/PromptTrack/blob/master/test/PromptTrack_Demo.ipynb" target="_blank">
     <img src="https://img.shields.io/badge/Open%20in%20Colab-FFD43B?style=for-the-badge&logo=googlecolab&logoColor=black" alt="Open In Colab"/>
   </a>
 </p>
