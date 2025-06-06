@@ -109,3 +109,11 @@ tracker.read_video_with_mot(video_file, fps=20)
     <img src="images/zebbra.gif"  height="200px" width="29%" />
 
 </p>
+
+
+
+
+## 📄 **Updates**
+- Promptrack Python Library available https://pypi.org/project/PromptTrack/   (December 2023)
+- Added OWL-VIT V2 as detector   (December 2024)
+
