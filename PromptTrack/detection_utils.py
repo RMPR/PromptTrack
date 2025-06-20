@@ -115,8 +115,6 @@ def add_res(results, ax, color='green'):
 
 
 
-processor = Owlv2Processor.from_pretrained("google/owlv2-large-patch14-ensemble")
-model = Owlv2ForObjectDetection.from_pretrained("google/owlv2-large-patch14-ensemble")
 
 def get_inference(im_or, caption="pigs",nms_threshold=0.8,detector="OWL-VITV2", detection_threshold=0.5):
   # propagate through the model
@@ -164,7 +162,9 @@ def get_inference(im_or, caption="pigs",nms_threshold=0.8,detector="OWL-VITV2", 
     labels = [predicted_spans [k] for k in sorted(list(predicted_spans .keys()))]
     
   if detector.lower()=="owl-vitv2":
-    
+    processor = Owlv2Processor.from_pretrained("google/owlv2-large-patch14-ensemble")
+    model = Owlv2ForObjectDetection.from_pretrained("google/owlv2-large-patch14-ensemble")
+
     image = im=Image.fromarray(im_or)
     texts = [caption.split(",")]
     inputs = processor(text=texts, images=image, return_tensors="pt")
