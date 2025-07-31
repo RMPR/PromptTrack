@@ -16,7 +16,6 @@ To install PromptTracker, use the following command:
 
 ```python
 pip install PromptTrack
-#pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ PromptTrack (version test)
 pip install --no-deps bytetracker
 ```
 
@@ -57,7 +56,7 @@ tracker.detect_objects(video_file, prompt="penguin",nms_threshold=0.8, detection
 Process the video using a Multiple Object Tracker (MOT):
 
 ### Parameters:
-- **video_file (str)**: Path to the input video file.
+- **video_file (str)**: Path to the MP4 input video file
 - **fixed_parc (bool, default=True)**: Set to True if the number of tracked objects remains constant.
 - **track_thresh (float, default=0.40)**: Detection confidence threshold for the tracker.
 - **match_thresh (float, default=1.0)**: Matching threshold between new detections and existing tracks (1 to match all, 0 to match none).
